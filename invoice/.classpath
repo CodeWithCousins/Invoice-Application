@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/local/ZOHOCORP/kabilan-pt6299/Downloads/javax.xml.bind.jar"/>
+	<classpathentry kind="lib" path="/home/local/ZOHOCORP/kabilan-pt6299/Downloads/jjwt-0.9.1.jar"/>
+	<classpathentry kind="lib" path="/home/local/ZOHOCORP/kabilan-pt6299/Downloads/org.json.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
