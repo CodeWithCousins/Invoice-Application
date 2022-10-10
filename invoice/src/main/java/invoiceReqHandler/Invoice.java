@@ -123,7 +123,7 @@ public class Invoice extends HttpServlet {
 				
 				InvoiceHandler invoiceHandler = new InvoiceHandler();
 				int invoiceId = invoiceHandler.GetLatestInvoiceId()+1;
-				boolean canInvoiceBeCreated = false;
+				boolean canInvoiceBeCreated = true;
 				ItemHandler itemHandler = new ItemHandler();
 				double totalCostPrice= 0;
 				for(int i=0;i<arrayOfBody.length()-1;i++)
@@ -139,17 +139,18 @@ public class Invoice extends HttpServlet {
 						
 						if(itemHandler.IsItemAvailable(itemId, quantity))
 						{
-							canInvoiceBeCreated = true;
+							
 							System.out.println("hiii");
 							itemHandler.ReduceItemStock(itemId, quantity);
 							invoiceHandler.InsertInvoicetItem(invoiceId, itemId, quantity);
 							totalCostPrice += (itemHandler.GetCostPrice(itemId) * quantity);
 						}
+						else
+						{
+							// if item not available update in stock in need table
+							canInvoiceBeCreated = false;
+						}
 						
-					}
-					else
-					{
-//						out.println("Provide item id ");
 					}
 
 				}

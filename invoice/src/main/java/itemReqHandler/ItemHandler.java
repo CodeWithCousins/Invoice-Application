@@ -251,4 +251,63 @@ public class ItemHandler {
 		return costPrice;
 	}
 	
+	public int GetItemStock(int itemId) throws SQLException
+	{
+		Connection con = SqlConnector.ConnectDb();
+
+		PreparedStatement ps = con.prepareStatement("select * from Items where itemId = ?");
+		ps.setInt(1, itemId);
+		
+		ResultSet rs = ps.executeQuery();
+		int stock =0;
+		
+		while (rs.next()) {
+			stock = rs.getInt("stock");
+        }
+		con.close();
+		return stock;
+	}
+	
+	public int UpdateStock(String itemName, int quantity, double costPrice, double tax) throws SQLException
+	{
+		
+		ItemHandler itemHandler = new ItemHandler();
+		
+		int itemId = itemHandler.GetItemId(itemName);
+		quantity += itemHandler.GetItemStock(itemId);
+		
+		Connection con = SqlConnector.ConnectDb();
+
+		PreparedStatement ps = con.prepareStatement("UPDATE Items SET stock = ?, costPrice = ?, tax = ? WHERE itemId = ?");
+		ps.setInt(1, quantity);
+		ps.setDouble(2, costPrice);
+		ps.setDouble(3, tax);
+		ps.setInt(4, itemId);
+		
+		int res  = ps.executeUpdate();
+		
+		System.out.println(res);
+		con.close();
+		
+		return res;
+	}
+	
+	public int GetItemId(String itemName) throws SQLException
+	{
+		Connection con = SqlConnector.ConnectDb();
+
+		PreparedStatement ps = con.prepareStatement("select * from Items where itemName = ?");
+		ps.setString(1, itemName);
+		
+		ResultSet rs = ps.executeQuery();
+		int itemId = 0 ;
+		
+		while (rs.next()) {
+			itemId = rs.getInt("itemId");
+        }
+		con.close();
+		
+		return itemId;
+	}
+	 
 }
