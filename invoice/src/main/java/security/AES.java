@@ -23,7 +23,7 @@ public class AES {
 	private static final String SALT = "QpvYmsNa";
 	
 	// This method use to encrypt to string
-	public String Encrypt(int id)
+	public String Encrypt()
 	{
 		RandomKey randomKey = new RandomKey();
 		String strToEncrypt = randomKey.getAlphaNumericString(15);

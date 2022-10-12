@@ -3,7 +3,6 @@ package jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-
 public class SqlConnector {
 
 	public static String url      = "jdbc:mysql://localhost:3306/ZBooks";
@@ -13,7 +12,6 @@ public class SqlConnector {
 
 	public static Connection ConnectDb()
 	{
-
 		Connection con = null;
 
 		try
@@ -27,5 +25,4 @@ public class SqlConnector {
 		}
 		return con;
 	}
-
 }

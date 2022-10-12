@@ -15,9 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jdbc.SqlValidation;
 import security.Base;
 import security.KeySetter;
-/**
- * Servlet implementation class Token
- */
+
 @WebServlet("/jwt/v0/token")
 public class Token extends HttpServlet {
 	
@@ -36,7 +34,6 @@ public class Token extends HttpServlet {
 			int userId = 0;
 			try {
 				userId = authentication.IsValidUser(loginCredentials);
-
 				if(userId != 0) {
 					
 					Base base64 = new Base();
@@ -46,12 +43,9 @@ public class Token extends HttpServlet {
 					keySetter.SetEncryptionTokenInDb(jwtToken, userId);
 					
 					jsonObject.put("status", "success");
-					jsonObject.put("Organization_id", userId);
 					jsonObject.put("Token", jwtToken);
 					out.println(jsonObject);
-					
 				}
-				
 			} catch (SQLException | JSONException e) {
 				
 				try {

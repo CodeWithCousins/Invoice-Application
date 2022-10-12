@@ -1,6 +1,5 @@
 package invoiceReqHandler;
 
-import itemReqHandler.ItemHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -25,14 +24,21 @@ public class Invoice extends HttpServlet {
 	
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//		System.out.println("cookie :" + request.getCookies().getName("Cookie_4"));
+//		Cookie[] cookies = request.getCookies(); 
+//		
+//		for (Cookie c : cookies) { 
+//            String tname = c.getValue(); 
+//            System.out.println(c.getName() + tname);
+//        } 
 		
 		PrintWriter pOut = response.getWriter();
-
+		JSONArray jsArrInvoiceDetails = new JSONArray();
 		Requesthandler requesthandler = new Requesthandler();
 		
-		boolean isValidCredentials = requesthandler.Handler(request, response);
+		int isValidCredentials = requesthandler.Handler(request, response);
 		JSONObject jsonObject = new JSONObject();
-		if(isValidCredentials)
+		if(isValidCredentials != 0)
 		{
 			String uri = request.getRequestURI();
 			uri = uri.replace("/invoice/api/v0/invoice", "");
@@ -43,13 +49,9 @@ public class Invoice extends HttpServlet {
 			if(uri != "" && sqlValidation.IsNumeric(uri.substring(1)))
 			{
 				invoiceId = Integer.parseInt(uri.substring(1));
-
-				
-
 				try {
 					jsonObject.put("status", "success");
-					jsonObject.put("invoice",invoiceHandler.GetInvoice(invoiceId));
-					pOut.println(jsonObject);
+					jsArrInvoiceDetails = invoiceHandler.GetInvoice(invoiceId);
 				} catch (SQLException | JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -58,15 +60,21 @@ public class Invoice extends HttpServlet {
 			else if(uri == "")
 			{	
 				ItemHandler itemHandler = new ItemHandler();
-
 				try {
-					jsonObject.put("status", "success");
-					jsonObject.put("invoice",invoiceHandler.GetInvoice(invoiceId));
-					pOut.println(jsonObject);
+					jsArrInvoiceDetails = invoiceHandler.GetInvoice(invoiceId);
 				} catch (SQLException | JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			}
+		}
+		if(jsArrInvoiceDetails.length() != 0)
+		{
+			try {
+				jsonObject.put("status", "success");
+				jsonObject.put("invoices", jsArrInvoiceDetails);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		else
@@ -77,8 +85,8 @@ public class Invoice extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			pOut.println(jsonObject);
 		}
+		pOut.println(jsonObject);
 		pOut.close();
 		
 	}
@@ -87,9 +95,9 @@ public class Invoice extends HttpServlet {
 		PrintWriter pOut = response.getWriter();
 
 		Requesthandler requesthandler = new Requesthandler();
-		boolean isValidCredentials = requesthandler.Handler(request, response);
+		int isValidCredentials = requesthandler.Handler(request, response);
 		JSONObject jsonObject = new JSONObject();
-		if(isValidCredentials)
+		if(isValidCredentials != 0)
 		{
 			String uri = request.getRequestURI();
 			uri = uri.replace("/invoice/api/v0/invoice", "");
@@ -108,17 +116,18 @@ public class Invoice extends HttpServlet {
 			JSONArray arrayOfBody = null;
 			int custId = 0;
 			double discount=0;
-			System.out.println("hi");
 			try {
-				arrayOfBody = new JSONArray(bodyMsg);
+				JSONObject json = new JSONObject(bodyMsg);  
+				arrayOfBody = json.getJSONArray("items");
+				JSONArray arrayBody = json.getJSONArray("details");
 				
-				if(arrayOfBody.getJSONObject(arrayOfBody.length()-1).has("custId"))
+				if(arrayBody.getJSONObject(0).has("custId"))
 				{
-					custId = arrayOfBody.getJSONObject(arrayOfBody.length()-1).getInt("custId");
+					custId = arrayBody.getJSONObject(0).getInt("custId");
 				} 
-				if(arrayOfBody.getJSONObject(arrayOfBody.length()-1).has("discount"))
+				if(arrayBody.getJSONObject(0).has("discount"))
 				{
-					discount = arrayOfBody.getJSONObject(arrayOfBody.length()-1).getDouble("discount");
+					discount = arrayBody.getJSONObject(0).getDouble("discount");
 				} 
 				
 				InvoiceHandler invoiceHandler = new InvoiceHandler();
@@ -126,21 +135,16 @@ public class Invoice extends HttpServlet {
 				boolean canInvoiceBeCreated = true;
 				ItemHandler itemHandler = new ItemHandler();
 				double totalCostPrice= 0;
-				for(int i=0;i<arrayOfBody.length()-1;i++)
+				for(int i=0;i<arrayOfBody.length();i++)
 				{
 					int itemId =0, quantity =0;
-					
-					
-
 					if(arrayOfBody.getJSONObject(i).has("itemId") && arrayOfBody.getJSONObject(i).has("quantity")) 
 					{
 						itemId = arrayOfBody.getJSONObject(i).getInt("itemId");
 						quantity = arrayOfBody.getJSONObject(i).getInt("quantity");
-						
 						if(itemHandler.IsItemAvailable(itemId, quantity))
 						{
 							
-							System.out.println("hiii");
 							itemHandler.ReduceItemStock(itemId, quantity);
 							invoiceHandler.InsertInvoicetItem(invoiceId, itemId, quantity);
 							totalCostPrice += (itemHandler.GetCostPrice(itemId) * quantity);
@@ -150,21 +154,16 @@ public class Invoice extends HttpServlet {
 							// if item not available update in stock in need table
 							canInvoiceBeCreated = false;
 						}
-						
 					}
-
 				}
 				if(canInvoiceBeCreated)
 				{
-					invoiceHandler.InsertInvoice(invoiceId, custId, discount, totalCostPrice);
-					
+					invoiceHandler.InsertInvoice(invoiceId, custId, discount, totalCostPrice, isValidCredentials);
 					jsonObject.put("status", "success");
-					pOut.println(jsonObject);
 				}
 				else
 				{
 					jsonObject.put("status", "error");
-					pOut.println(jsonObject);
 				}
 			
 		
@@ -173,6 +172,7 @@ public class Invoice extends HttpServlet {
 				e1.printStackTrace();
 			}
 		}
+		pOut.println(jsonObject);
 		pOut.close();
 	}
 

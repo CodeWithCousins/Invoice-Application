@@ -13,29 +13,26 @@ import jdbc.SqlValidation;
 
 public class Requesthandler {
 	
-	public boolean Handler(HttpServletRequest request, HttpServletResponse response) throws IOException
+	public int Handler(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-
+		int userId = 0;
 		if(request.getParameter("organization_id") != null)
 		{
 			int organizationId = Integer.parseInt(request.getParameter("organization_id")); // Organization_id from url
-
 			if(request.getHeader("Authorization") != null)
 			{
 				String token = request.getHeader("Authorization"); // Jwt token from Header
-
 				SqlValidation sqlValidation = new SqlValidation();
-
 				if(sqlValidation.IsValidString(token))
 				{
 					Authentication authentication = new Authentication();
-					boolean isValidCredentials = false;
+//					boolean isValidCredentials = false;
 					try {
-						isValidCredentials = authentication.IsValidCredentials(token, organizationId);
-						if(isValidCredentials)
-						{
-							return true;
-						}
+						userId = authentication.IsValidCredentials(token, organizationId);
+						
+						if(userId != 0)
+							return userId;
+						
 					} catch (SQLException | ParseException | JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -51,7 +48,7 @@ public class Requesthandler {
 		{
 			System.out.println("Provide Organization Id");
 		}
-		return false;
+		return userId;
 					
 	}
 

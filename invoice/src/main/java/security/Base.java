@@ -14,11 +14,11 @@ public class Base {
 		
 		System.out.println(expiryDateTime);
 		
-		String payload = "{\n\"expired at\":\""+expiryDateTime+"\"\n}";
+		String payload = "{\n\"id\" : "+id+", \n\"expired at\":\""+expiryDateTime+"\"\n}";
 		String payloadBase64format = Base64.getEncoder().encodeToString(payload.getBytes());
 		
 		AES aes = new AES();
-		String signature = aes.Encrypt(id);
+		String signature = aes.Encrypt();
 		
 		String BasicBase64format = headerBase64format +"."+ payloadBase64format+"."+signature;
 		System.out.println(BasicBase64format);
