@@ -138,7 +138,7 @@ public class Supplier extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		else
+		else if(jsonObject.length() == 0)
 		{
 			try {
 				jsonObject.put("status", "error");
@@ -212,7 +212,7 @@ public class Supplier extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		else
+		else if(jsonObject.length() == 0)
 		{
 			try {
 				jsonObject.put("status", "error");

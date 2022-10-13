@@ -168,7 +168,7 @@ public class Purchase extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		else
+		else if(jsonObject.length() == 0)
 		{
 			try {
 				jsonObject.put("status", "error");

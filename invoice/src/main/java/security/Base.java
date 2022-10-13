@@ -6,7 +6,7 @@ public class Base {
 
 	public String Encode(int id) {
 		
-		String header ="{\n\"alg\":\"AES\",\n\"typ\":\"JWT\"\n}";
+		String header ="{\n\"alg\":\"sha\",\n\"typ\":\"JWT\"\n}";
 		String headerBase64format = Base64.getEncoder().encodeToString(header.getBytes());
 		
 		DateGenerator dateGenerator = new DateGenerator();
@@ -17,8 +17,8 @@ public class Base {
 		String payload = "{\n\"id\" : "+id+", \n\"expired at\":\""+expiryDateTime+"\"\n}";
 		String payloadBase64format = Base64.getEncoder().encodeToString(payload.getBytes());
 		
-		AES aes = new AES();
-		String signature = aes.Encrypt();
+		Sha sha = new Sha();
+		String signature = sha.EncryptSalt();
 		
 		String BasicBase64format = headerBase64format +"."+ payloadBase64format+"."+signature;
 		System.out.println(BasicBase64format);
@@ -32,5 +32,11 @@ public class Base {
 		String actualString = new String(actualByte);
 
 		return actualString;
+	}
+	public String EncodeBase(String credents) {
+		
+		String encUserPass = Base64.getEncoder().encodeToString(credents.getBytes());
+		
+		return encUserPass;
 	}
 }
