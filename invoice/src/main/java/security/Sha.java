@@ -8,40 +8,102 @@ import java.security.SecureRandom;
 
 public class Sha{
 	
-	public String EncryptSalt()
+	public String EncryptPasswords(String mail, String pass)
     {
-    	RandomKey randomKey = new RandomKey();
-        String key = randomKey.getAlphaNumericString(15);
+		String key = mail+pass+"ODQ2NjFjMG";
+		MessageDigest md;
+	    try
+	    {
+	        // Select the message digest for the hash computation -> SHA-256
+	        md = MessageDigest.getInstance("SHA-256");
 
-        MessageDigest md;
-        try
-        {
-            // Select the message digest for the hash computation -> SHA-256
-            md = MessageDigest.getInstance("SHA-256");
+	        // Generate the salted hash
+	        byte[] hashedPassword = md.digest(key.getBytes(StandardCharsets.UTF_8));
 
-            // Generate the random salt
-            SecureRandom random = new SecureRandom();
-            byte[] salt = new byte[16];
-            random.nextBytes(salt);
+	        StringBuilder sb = new StringBuilder();
+	        for (byte b : hashedPassword)
+	            sb.append(String.format("%02x", b));
 
-            // Passing the salt to the digest for the computation
-            md.update(salt);
-
-            // Generate the salted hash
-            byte[] hashedPassword = md.digest(key.getBytes(StandardCharsets.UTF_8));
-
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedPassword)
-                sb.append(String.format("%02x", b));
-
-            System.out.println(sb);
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
+	        return sb.toString();
+	    } catch (NoSuchAlgorithmException e)
+	    {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	    }
+	    return null;
     }
 	
+	public String EncryptTheToken(String head, String payload)
+	{
+		String k = "Ylmoumo7dmws*";
+		String key = head+"."+payload+"."+k;
+		MessageDigest md;
+	    try
+	    {
+	        // Select the message digest for the hash computation -> SHA-256
+	        md = MessageDigest.getInstance("SHA-256");
+
+	        // Generate the salted hash
+	        byte[] hashedPassword = md.digest(key.getBytes(StandardCharsets.UTF_8));
+
+	        StringBuilder sb = new StringBuilder();
+	        for (byte b : hashedPassword)
+	            sb.append(String.format("%02x", b));
+
+	        return sb.toString();
+	    } catch (NoSuchAlgorithmException e)
+	    {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	    }
+	    return null;
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+//
+//
+//public String EncryptPasswords()
+//{
+//	RandomKey randomKey = new RandomKey();
+//    String key = randomKey.getAlphaNumericString(15);
+//
+//    MessageDigest md;
+//    try
+//    {
+//        // Select the message digest for the hash computation -> SHA-256
+//        md = MessageDigest.getInstance("SHA-256");
+//
+//        // Generate the random salt
+//        SecureRandom random = new SecureRandom();
+//        byte[] salt = new byte[16];
+//        random.nextBytes(salt);
+//
+//        // Passing the salt to the digest for the computation
+//        md.update(salt);
+//
+//        // Generate the salted hash
+//        byte[] hashedPassword = md.digest(key.getBytes(StandardCharsets.UTF_8));
+//
+//        StringBuilder sb = new StringBuilder();
+//        for (byte b : hashedPassword)
+//            sb.append(String.format("%02x", b));
+//
+//        System.out.println(sb);
+//        return sb.toString();
+//    } catch (NoSuchAlgorithmException e)
+//    {
+//        // TODO Auto-generated catch block
+//        e.printStackTrace();
+//    }
+//    return null;
+//}

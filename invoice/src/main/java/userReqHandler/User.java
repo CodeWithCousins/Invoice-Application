@@ -53,7 +53,6 @@ public class User extends HttpServlet {
 			}
 			else if(uri == "")
 			{	
-				
 				try {
 					jsArrUserDetails = userHandler.GetUser(userId, organizationId);
 				} catch (SQLException | JSONException e) {

@@ -69,7 +69,6 @@ public class PurchaseHandler {
 			ps = con.prepareStatement("SELECT * FROM Purchase");
 			ResultSet rs = ps.executeQuery();
 			
-			
 			while (rs.next()) {
 				JSONObject itemObject = new JSONObject();
 				itemObject.put("purchaseId", rs.getInt("purchaseId"));

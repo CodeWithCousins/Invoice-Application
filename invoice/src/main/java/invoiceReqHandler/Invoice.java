@@ -18,24 +18,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jdbc.SqlValidation;
 import reqHandler.Requesthandler;
 
-
 @WebServlet("/api/v0/invoice/*")
 public class Invoice extends HttpServlet {
-	
-	
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//		System.out.println("cookie :" + request.getCookies().getName("Cookie_4"));
-//		Cookie[] cookies = request.getCookies(); 
-//		
-//		for (Cookie c : cookies) { 
-//            String tname = c.getValue(); 
-//            System.out.println(c.getName() + tname);
-//        } 
-		
 		PrintWriter pOut = response.getWriter();
 		JSONArray jsArrInvoiceDetails = new JSONArray();
 		Requesthandler requesthandler = new Requesthandler();
-		
+
 		int isValidCredentials = requesthandler.Handler(request, response);
 		JSONObject jsonObject = new JSONObject();
 		if(isValidCredentials != 0)
@@ -53,7 +43,6 @@ public class Invoice extends HttpServlet {
 					jsonObject.put("status", "success");
 					jsArrInvoiceDetails = invoiceHandler.GetInvoice(invoiceId);
 				} catch (SQLException | JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -73,7 +62,6 @@ public class Invoice extends HttpServlet {
 				jsonObject.put("status", "success");
 				jsonObject.put("invoices", jsArrInvoiceDetails);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -88,10 +76,10 @@ public class Invoice extends HttpServlet {
 		}
 		pOut.println(jsonObject);
 		pOut.close();
-		
+
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+
 		PrintWriter pOut = response.getWriter();
 
 		Requesthandler requesthandler = new Requesthandler();
@@ -104,7 +92,7 @@ public class Invoice extends HttpServlet {
 
 			if(uri != "")
 				return;
-			
+
 			String bodyMsgline = null;
 			String bodyMsg = "";
 
@@ -113,51 +101,58 @@ public class Invoice extends HttpServlet {
 				bodyMsg +=bodyMsgline;
 			}
 
-			JSONArray arrayOfBody = null;
+			JSONArray arrBodyItems = null;
 			int custId = 0;
 			double discount=0;
 			try {
 				JSONObject json = new JSONObject(bodyMsg);  
-				arrayOfBody = json.getJSONArray("items");
-				JSONArray arrayBody = json.getJSONArray("details");
-				
-				if(arrayBody.getJSONObject(0).has("custId"))
+				arrBodyItems = json.getJSONArray("items");
+				JSONArray arrBodyItemDetails = json.getJSONArray("details");
+
+				if(arrBodyItemDetails.getJSONObject(0).has("custId"))
 				{
-					custId = arrayBody.getJSONObject(0).getInt("custId");
+					custId = arrBodyItemDetails.getJSONObject(0).getInt("custId");
 				} 
-				if(arrayBody.getJSONObject(0).has("discount"))
+				if(arrBodyItemDetails.getJSONObject(0).has("discount"))
 				{
-					discount = arrayBody.getJSONObject(0).getDouble("discount");
+					discount = arrBodyItemDetails.getJSONObject(0).getDouble("discount");
 				} 
-				
+
 				InvoiceHandler invoiceHandler = new InvoiceHandler();
 				int invoiceId = invoiceHandler.GetLatestInvoiceId()+1;
 				boolean canInvoiceBeCreated = true;
 				ItemHandler itemHandler = new ItemHandler();
 				double totalCostPrice= 0;
-				for(int i=0;i<arrayOfBody.length();i++)
+				for(int i=0;i<arrBodyItems.length();i++)
 				{
 					int itemId =0, quantity =0;
-					if(arrayOfBody.getJSONObject(i).has("itemId") && arrayOfBody.getJSONObject(i).has("quantity")) 
+					if(arrBodyItems.getJSONObject(i).has("itemId") && arrBodyItems.getJSONObject(i).has("quantity")) 
 					{
-						itemId = arrayOfBody.getJSONObject(i).getInt("itemId");
-						quantity = arrayOfBody.getJSONObject(i).getInt("quantity");
-						if(itemHandler.IsItemAvailable(itemId, quantity))
+						itemId = arrBodyItems.getJSONObject(i).getInt("itemId");
+						quantity = arrBodyItems.getJSONObject(i).getInt("quantity");
+						if(!itemHandler.IsItemAvailable(itemId, quantity))
 						{
-							
+							canInvoiceBeCreated = false;
+							break;
+						}
+					}
+				}
+
+				if(canInvoiceBeCreated) {
+					for(int i=0;i<arrBodyItems.length();i++)
+					{
+						int itemId =0, quantity =0;
+
+						if(arrBodyItems.getJSONObject(i).has("itemId") && arrBodyItems.getJSONObject(i).has("quantity")) 
+						{
+							itemId = arrBodyItems.getJSONObject(i).getInt("itemId");
+							quantity = arrBodyItems.getJSONObject(i).getInt("quantity");
+
 							itemHandler.ReduceItemStock(itemId, quantity);
 							invoiceHandler.InsertInvoicetItem(invoiceId, itemId, quantity);
 							totalCostPrice += (itemHandler.GetCostPrice(itemId) * quantity);
 						}
-						else
-						{
-							// if item not available update in stock in need table
-							canInvoiceBeCreated = false;
-						}
 					}
-				}
-				if(canInvoiceBeCreated)
-				{
 					invoiceHandler.InsertInvoice(invoiceId, custId, discount, totalCostPrice, isValidCredentials);
 					jsonObject.put("status", "success");
 				}
@@ -165,8 +160,6 @@ public class Invoice extends HttpServlet {
 				{
 					jsonObject.put("status", "error");
 				}
-			
-		
 			}catch (JSONException | SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

@@ -109,21 +109,15 @@ public class Item extends HttpServlet {
 					int stock = 0;
 					SqlValidation sqlValidation = new SqlValidation();
 
-					if(arrayOfBody.getJSONObject(i).has("itemName")) 
+					if(arrayOfBody.getJSONObject(i).has("itemName") && arrayOfBody.getJSONObject(i).has("costPrice") && arrayOfBody.getJSONObject(i).has("stock") && arrayOfBody.getJSONObject(i).has("sellingPrice")) 
 					{
 						itemName = arrayOfBody.getJSONObject(i).getString("itemName");
-
-						if(arrayOfBody.getJSONObject(i).has("costPrice"))
-							costPrice = arrayOfBody.getJSONObject(i).getDouble("costPrice");
-
-						if(arrayOfBody.getJSONObject(i).has("sellingPrice"))
-							sellingPrice = arrayOfBody.getJSONObject(i).getDouble("sellingPrice");
+						costPrice = arrayOfBody.getJSONObject(i).getDouble("costPrice");
+						stock = arrayOfBody.getJSONObject(i).getInt("stock");
+						sellingPrice = arrayOfBody.getJSONObject(i).getDouble("sellingPrice");
 
 						if(arrayOfBody.getJSONObject(i).has("tax"))
 							tax = arrayOfBody.getJSONObject(i).getDouble("tax");
-
-						if(arrayOfBody.getJSONObject(i).has("stock"))
-							stock = arrayOfBody.getJSONObject(i).getInt("stock");
 
 						if(sqlValidation.IsValidString(itemName)) 
 						{
@@ -248,7 +242,7 @@ public class Item extends HttpServlet {
 				}
 			}
 		}
-		
+
 		if(isItemDeleted != 0)
 		{
 			try {
@@ -265,7 +259,7 @@ public class Item extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		
+
 		pOut.println(jsonObject);
 		pOut.close();
 	}

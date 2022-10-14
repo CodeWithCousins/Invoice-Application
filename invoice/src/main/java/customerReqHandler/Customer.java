@@ -208,7 +208,6 @@ public class Customer extends HttpServlet {
 				}
 
 			} catch (JSONException | SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

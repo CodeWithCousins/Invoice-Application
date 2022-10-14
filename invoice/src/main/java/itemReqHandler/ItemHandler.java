@@ -32,6 +32,7 @@ public class ItemHandler {
 			JSONObject itemObject = new JSONObject();
 			itemObject.put("itemId", rs.getInt("itemId"));
 			itemObject.put("itemName", rs.getString("itemName"));
+			itemObject.put("itemPrice", rs.getDouble("sellingPrice"));
 			itemObject.put("itemStock", rs.getInt("stock"));
 			itemDetails.put(itemObject);
         }

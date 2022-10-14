@@ -112,43 +112,43 @@ public class Purchase extends HttpServlet {
 				bodyMsg +=bodyMsgline;
 			}
 
-			JSONArray arrayOfBody = null;
+			JSONArray arrBodyItems = null;
 
 			try {
 
 				JSONObject json = new JSONObject(bodyMsg);  
-				arrayOfBody = json.getJSONArray("items");
-				JSONArray arrayBody = json.getJSONArray("details");
+				arrBodyItems = json.getJSONArray("items");
+				JSONArray arrBodyItemDetails = json.getJSONArray("details");
 
 				String taxId = "";
 				double discount =0;
-				if(arrayBody.getJSONObject(0).has("taxID"))
-					taxId = arrayBody.getJSONObject(0).getString("taxID");
+				if(arrBodyItemDetails.getJSONObject(0).has("taxID"))
+					taxId = arrBodyItemDetails.getJSONObject(0).getString("taxID");
 				
 				SupplierHandler supplierHandler = new SupplierHandler();
 				int supplierId = supplierHandler.GetSupplierId(taxId);
 				if(supplierId != 0 ) 
 				{
-					if(arrayBody.getJSONObject(0).has("discount"))
-						discount = arrayBody.getJSONObject(0).getDouble("discount");
+					if(arrBodyItemDetails.getJSONObject(0).has("discount"))
+						discount = arrBodyItemDetails.getJSONObject(0).getDouble("discount");
 
 					
 					ItemHandler itemHandler = new ItemHandler();
 					PurchaseHandler purchaseHandler = new PurchaseHandler();
 					int purchaseId = purchaseHandler.GetLatestPurchaseId()+1;
 					
-					for(int i=0;i<arrayOfBody.length();i++)
+					for(int i=0;i<arrBodyItems.length();i++)
 					{
 						String itemName = "";
 						int itemQuantity = 0;
 						double itemPrice = 0, tax=0, sellingPrice=0;
 
-						if(arrayOfBody.getJSONObject(i).has("itemName") && arrayOfBody.getJSONObject(i).has("itemQuantity") && arrayOfBody.getJSONObject(i).has("itemPrice") && arrayOfBody.getJSONObject(i).has("tax"))
+						if(arrBodyItems.getJSONObject(i).has("itemName") && arrBodyItems.getJSONObject(i).has("itemQuantity") && arrBodyItems.getJSONObject(i).has("itemPrice") && arrBodyItems.getJSONObject(i).has("tax"))
 						{
-							itemName = arrayOfBody.getJSONObject(i).getString("itemName");
-							itemQuantity = arrayOfBody.getJSONObject(i).getInt("itemQuantity");
-							itemPrice = arrayOfBody.getJSONObject(i).getDouble("itemPrice");
-							tax = arrayOfBody.getJSONObject(i).getDouble("tax");
+							itemName = arrBodyItems.getJSONObject(i).getString("itemName");
+							itemQuantity = arrBodyItems.getJSONObject(i).getInt("itemQuantity");
+							itemPrice = arrBodyItems.getJSONObject(i).getDouble("itemPrice");
+							tax = arrBodyItems.getJSONObject(i).getDouble("tax");
 							sellingPrice = itemPrice + 3;
 							int updatedRows = itemHandler.UpdateStock(itemName, itemQuantity, itemPrice, tax);
 							if(updatedRows == 0)
